@@ -1,13 +1,15 @@
 name = "JFVM"
 uuid = "d32f81f0-000d-5c7c-8375-24efa40f8589"
-version = "1.0.4"
+version = "1.1.0"
+authors = ["Ali A. Eftekhari", "JFVM contributors"]
 
 [deps]
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-julia = "≥ 1.0.0"
+FFTW = "1.10"
+julia = "1.10"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

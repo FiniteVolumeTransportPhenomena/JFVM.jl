@@ -3,12 +3,17 @@
 [![DOI](https://zenodo.org/badge/28677142.svg)](https://zenodo.org/badge/latestdoi/28677142)
 
 ## IMPORTANT NOTES
-  + The code now works with Julia 1.0. All you need to do is to check out the master branch:
+  + JFVM is now prepared for Julia package registration and targets Julia 1.10+.
+  + Once registered in General, install it with:
 ```
-] add https://github.com/simulkade/JFVM.jl
+] add JFVM
 ```
-  + 3D visualization requires calling Mayavi via PyCall. It made too many problems recently, so I have decided to disable it until I find a better solution for 3D visualization. Suggestions/PRs are very welcome.
-  + I have decided to move the visualization to a new package [JFVMvis.jl](https://github.com/simulkade/JFVMvis.jl.git), that you can install by:
+  + Until registration is completed, install directly from this repository:
+```
+] add https://github.com/FiniteVolumeTransportPhenomena/JFVM.jl
+```
+  + 3D visualization via Mayavi/PyCall is intentionally disabled in this package.
+  + Visualization support is maintained in [JFVMvis.jl](https://github.com/simulkade/JFVMvis.jl.git), which can be installed by:
   ```
   ] add https://github.com/simulkade/JFVMvis.jl
   ```
@@ -37,30 +42,23 @@ You can have the following boundary conditions or a combination of them on each 
 It is relatively easy to use the code to solve a system of coupled linear PDE's and not too difficult to solve nonlinear PDE's.
 
 ## Installation
-You need to have [matplotlib](http://matplotlib.org/) (only for visualization)
-
-### Linux
-In Ubuntu-based systems, try
+### General registry (after registration)
+Install from the Julia General registry:
 ```
-sudo apt-get install python-matplotlib
-```
-Then install `JFVM` by the following commands:
-```
-] add https://github.com/simulkade/JFVM.jl
+] add JFVM
 ```
 
-### Windows
-  + open `Julia` and type
-  ```
-  ] add https://github.com/simulkade/JFVM.jl
-  ```
-  + For visualization, download and install [Anaconda](http://continuum.io/downloads)  
-  Run `anaconda command prompt` (as administrator) and install `matplotlib` by   
-  ```
-  conda install matplotlib
-  ```
+### Direct from git (available now)
+Install from this repository:
+```
+] add https://github.com/FiniteVolumeTransportPhenomena/JFVM.jl
+```
 
-Please let me know if it does not work on your windows machines.
+### Optional visualization package
+If you need plotting/visualization workflows that were moved out of this package:
+```
+] add https://github.com/simulkade/JFVMvis.jl
+```
 
 ## Tutorial
 I have written a short [tutorial](http://nbviewer.ipython.org/github/simulkade/JFVM.jl/blob/master/examples/jfvm_tutorial.ipynb), which will be extended gradually.
