@@ -38,11 +38,11 @@ function _internal_slice(phi_val, m::MeshStructure)
   N = m.dims
   cs = m.coordinatesystem
   if is_1d(cs)
-    return phi_val[2:N[1]+1]
+    return @view phi_val[2:N[1]+1]
   elseif is_2d(cs)
-    return phi_val[2:N[1]+1, 2:N[2]+1]
+    return @view phi_val[2:N[1]+1, 2:N[2]+1]
   else
-    return phi_val[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
+    return @view phi_val[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
   end
 end
 

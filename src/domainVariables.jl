@@ -17,7 +17,7 @@ function createCellVariable(m::MeshStructure, phi0::Real)
 """
 function createCellVariable(m::MeshStructure, phi0::Real)
 # creates a cell variable and assigns value phi0 to it
-CellValue(m, phi0*ones(tuple(m.dims.+2...)))
+CellValue(m, fill(phi0, tuple(m.dims .+ 2...)))
 end
 
 function createCellVariable(phi::CellValue)
@@ -26,7 +26,7 @@ function createCellVariable(phi::CellValue)
 end
 
 # ============================================================
-function createCellVariable(m::MeshStructure, phi0::Array{T}) where T<:Real
+function createCellVariable(m::MeshStructure, phi0::AbstractArray{T}) where T<:Real
 # creates a cell variable and assigns value phi0 to it
 if prod(m.dims.+2)==length(phi0)
   CellValue(m, phi0)
@@ -49,7 +49,7 @@ end
 end
 
 # ==============================================================
-function createCellVariable(m::MeshStructure, phi0::Array{T}, BC::BoundaryCondition) where T<:Real
+function createCellVariable(m::MeshStructure, phi0::AbstractArray{T}, BC::BoundaryCondition) where T<:Real
 # creates a cell variable and assigns value phi0 to it
 if prod(m.dims.+2)==length(phi0)
   error("JFVM: Matrix must be the same size as the domain.")
@@ -74,7 +74,7 @@ end
 
 # ============================================================
 function createCellVariable(m::MeshStructure, phi0::Real, BC::BoundaryCondition)
-phi = CellValue(m, phi0*ones(tuple(m.dims.+2...)))
+phi = CellValue(m, fill(phi0, tuple(m.dims .+ 2...)))
 cellBoundary!(phi, BC)
 end
 
@@ -86,19 +86,19 @@ function createFaceVariable(m::MeshStructure, phi0::Array{T,1}) where T<:Real
   cs = m.coordinatesystem
   if is_1d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1).*phi0[1],
+        fill(phi0[1], m.dims[1]+1),
 	      [1.0],
 	      [1.0])
   elseif is_2d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1, m.dims[2]).*phi0[1],
-	      ones(m.dims[1], m.dims[2]+1).*phi0[2],
+        fill(phi0[1], m.dims[1]+1, m.dims[2]),
+        fill(phi0[2], m.dims[1], m.dims[2]+1),
 	      [1.0])
   elseif is_3d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1, m.dims[2], m.dims[3]).*phi0[1],
-	      ones(m.dims[1], m.dims[2]+1, m.dims[3]).*phi0[2],
-	      ones(m.dims[1], m.dims[2], m.dims[3]+1).*phi0[3])
+        fill(phi0[1], m.dims[1]+1, m.dims[2], m.dims[3]),
+        fill(phi0[2], m.dims[1], m.dims[2]+1, m.dims[3]),
+        fill(phi0[3], m.dims[1], m.dims[2], m.dims[3]+1))
   end
 end
 
@@ -107,19 +107,19 @@ function createFaceVariable(m::MeshStructure, phi0::Real)
   cs = m.coordinatesystem
   if is_1d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1).*phi0,
+        fill(phi0, m.dims[1]+1),
 	      [1.0],
 	      [1.0])
   elseif is_2d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1, m.dims[2]).*phi0,
-	      ones(m.dims[1], m.dims[2]+1).*phi0,
+        fill(phi0, m.dims[1]+1, m.dims[2]),
+        fill(phi0, m.dims[1], m.dims[2]+1),
 	      [1.0])
   elseif is_3d(cs)
     FaceValue(m,
-	      ones(m.dims[1]+1, m.dims[2], m.dims[3]).*phi0,
-	      ones(m.dims[1], m.dims[2]+1, m.dims[3]).*phi0,
-	      ones(m.dims[1], m.dims[2], m.dims[3]+1).*phi0)
+        fill(phi0, m.dims[1]+1, m.dims[2], m.dims[3]),
+        fill(phi0, m.dims[1], m.dims[2]+1, m.dims[3]),
+        fill(phi0, m.dims[1], m.dims[2], m.dims[3]+1))
   end
 end
 
@@ -130,19 +130,19 @@ function createCellVector(m::MeshStructure, phi0::Array{T,1}) where T<:Real
   cs = m.coordinatesystem
   if is_1d(cs)
     CellVector(m,
-	      ones(m.dims[1]).*phi0[1],
+        fill(phi0[1], m.dims[1]),
 	      [1.0],
 	      [1.0])
   elseif is_2d(cs)
     CellVector(m,
-	      ones(m.dims[1], m.dims[2]).*phi0[1],
-	      ones(m.dims[1], m.dims[2]).*phi0[2],
+        fill(phi0[1], m.dims[1], m.dims[2]),
+        fill(phi0[2], m.dims[1], m.dims[2]),
 	      [1.0])
   elseif is_3d(cs)
     CellVector(m,
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0[1],
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0[2],
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0[3])
+        fill(phi0[1], m.dims[1], m.dims[2], m.dims[3]),
+        fill(phi0[2], m.dims[1], m.dims[2], m.dims[3]),
+        fill(phi0[3], m.dims[1], m.dims[2], m.dims[3]))
   end
 end
 
@@ -151,19 +151,19 @@ function createCellVector(m::MeshStructure, phi0::Real)
   cs = m.coordinatesystem
   if is_1d(cs)
     CellVector(m,
-	      ones(m.dims[1]).*phi0,
+        fill(phi0, m.dims[1]),
 	      [1.0],
 	      [1.0])
   elseif is_2d(cs)
     CellVector(m,
-	      ones(m.dims[1], m.dims[2]).*phi0,
-	      ones(m.dims[1], m.dims[2]).*phi0,
+        fill(phi0, m.dims[1], m.dims[2]),
+        fill(phi0, m.dims[1], m.dims[2]),
 	      [1.0])
   elseif is_3d(cs)
     CellVector(m,
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0,
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0,
-	      ones(m.dims[1], m.dims[2], m.dims[3]).*phi0)
+        fill(phi0, m.dims[1], m.dims[2], m.dims[3]),
+        fill(phi0, m.dims[1], m.dims[2], m.dims[3]),
+        fill(phi0, m.dims[1], m.dims[2], m.dims[3]))
   end
 end
 
