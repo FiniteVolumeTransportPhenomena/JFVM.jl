@@ -25,6 +25,10 @@ using SparseArrays, FFTW
 
 import Base: +, -, *, /, ^, ==, >, >=, <, <=, broadcast, sin, cos, tan, cot, abs, exp, log, log10
 export MeshStructure, BoundaryCondition, CellValue, FaceValue, CellVector,
+  AbstractCoordinateSystem, Cartesian1D, Cylindrical1D, Cartesian2D,
+  Cylindrical2D, Radial2D, Cartesian3D, Cylindrical3D,
+  coordinatesystem_from_dimension, dimension_from_coordinatesystem,
+  is_1d, is_2d, is_3d,
        arithmeticMean, geometricMean, harmonicMean, upwindMean, linearMean,
        tvdMean, createBC, boundaryConditionTerm, cellBoundary!, solvePDE,
        divergenceTerm, gradientTerm, convectionUpwindTerm, createCellVector,

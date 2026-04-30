@@ -12,24 +12,16 @@
 
 # ========================= DIFFUSION TERM ================================
 function diffusionTerm(D::FaceValue)
-d = D.domain.dimension
-if d==1
-  M = diffusionTerm1D(D)
-elseif d==1.5
-  M = diffusionTermCylindrical1D(D)
-elseif d==2
-  M, Mx, My = diffusionTerm2D(D)
-elseif d==2.5
-  M, Mx, My = diffusionTermCylindrical2D(D)
-elseif d==2.8
-  M, Mx, My = diffusionTermRadial2D(D)
-elseif d==3
-  M, Mx, My, Mz = diffusionTerm3D(D)
-elseif d==3.2
-  M, Mx, My, Mz = diffusionTermCylindrical3D(D)
+	diffusionTerm(D, D.domain.coordinatesystem)
 end
-M
-end
+
+diffusionTerm(D::FaceValue, ::Cartesian1D) = diffusionTerm1D(D)
+diffusionTerm(D::FaceValue, ::Cylindrical1D) = diffusionTermCylindrical1D(D)
+diffusionTerm(D::FaceValue, ::Cartesian2D) = first(diffusionTerm2D(D))
+diffusionTerm(D::FaceValue, ::Cylindrical2D) = first(diffusionTermCylindrical2D(D))
+diffusionTerm(D::FaceValue, ::Radial2D) = first(diffusionTermRadial2D(D))
+diffusionTerm(D::FaceValue, ::Cartesian3D) = first(diffusionTerm3D(D))
+diffusionTerm(D::FaceValue, ::Cylindrical3D) = first(diffusionTermCylindrical3D(D))
 
 # ======================== 1D CARTESIAN DIFFUSION =========================
 function diffusionTerm1D(D::FaceValue)

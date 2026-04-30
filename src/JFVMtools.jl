@@ -297,23 +297,23 @@ function cellvol = cellVolume(m::MeshStructure)
 returns the volume of each cell in the form of a cell variable
 """
 function cellVolume(m::MeshStructure)
-  dim = m.dimension
+  cs = m.coordinatesystem
   BC = createBC(m)
-  if dim==1
+  if cs isa Cartesian1D
     c=m.cellsize.x[2:end-1]
-  elseif dim==1.5
+  elseif cs isa Cylindrical1D
     c=2.0*pi()*m.cellsize.x[2:end-1].*m.cellcenters.x
-  elseif dim==2
+  elseif cs isa Cartesian2D
     c=m.cellsize.x[2:end-1]*m.cellsize.y[2:end-1]'
-  elseif dim== 2.5 # cylindrical
+  elseif cs isa Cylindrical2D # cylindrical
     c=2.0*pi*m.cellcenters.x.*m.cellsize.x[2:end-1]*m.cellsize.y[2:end-1]'
-  elseif dim==2.8 # radial
+  elseif cs isa Radial2D # radial
     c=m.cellcenters.x.*m.cellsize.x[2:end-1]*m.cellsize.y[2:end-1]'
-  elseif dim==3
+  elseif cs isa Cartesian3D
     z = zeros(1,1,m.dims[3])
     z[1,1,:] .= m.cellsize.z[2:end-1]
     c=m.cellsize.x[2:end-1]*m.cellsize.y[2:end-1]'.*z
-  elseif dim==3.2
+  elseif cs isa Cylindrical3D
     z = zeros(1,1,m.dims[3])
     z[1,1,:] .= m.cellsize.z[2:end-1]
     c=m.cellcenters.x.*m.cellsize.x[2:end-1]*m.cellsize.y[2:end-1]'.*z
@@ -343,14 +343,14 @@ end
 returns the internal cells of a cell variable as an array of the same shape
 """
 function internalCells(phi::CellValue)
-  d = phi.domain.dimension
+  cs = phi.domain.coordinatesystem
   N = phi.domain.dims
 
-  if (d==1) || (d==1.5)
+  if is_1d(cs)
   	cellvar= phi.value[2:N[1]+1]
-  elseif (d==2) || (d==2.5) || (d==2.8)
+  elseif is_2d(cs)
   	cellvar= phi.value[2:N[1]+1, 2:N[2]+1]
-  elseif (d==3) || (d==3.2)
+  elseif is_3d(cs)
       cellvar= phi.value[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
   end
   return cellvar

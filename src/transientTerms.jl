@@ -13,28 +13,30 @@ transientTerm(phi_old, dt, 1.0)
 end
 
 function transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue)
-d = phi_old.domain.dimension
-if d==1 || d==1.5
-  transientTerm1D(phi_old, dt, alfa.value[2:end-1])
-elseif d==2 || d==2.5 || d==2.8
-  transientTerm2D(phi_old, dt, alfa.value[2:end-1,2:end-1])
-elseif d==3 || d==3.2
-  transientTerm3D(phi_old, dt, alfa.value[2:end-1,2:end-1,2:end-1])
+  transientTerm(phi_old, dt, alfa, phi_old.domain.coordinatesystem)
 end
-end
+
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cartesian1D) = transientTerm1D(phi_old, dt, alfa.value[2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cylindrical1D) = transientTerm1D(phi_old, dt, alfa.value[2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cartesian2D) = transientTerm2D(phi_old, dt, alfa.value[2:end-1,2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cylindrical2D) = transientTerm2D(phi_old, dt, alfa.value[2:end-1,2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Radial2D) = transientTerm2D(phi_old, dt, alfa.value[2:end-1,2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cartesian3D) = transientTerm3D(phi_old, dt, alfa.value[2:end-1,2:end-1,2:end-1])
+transientTerm(phi_old::CellValue, dt::Real, alfa::CellValue, ::Cylindrical3D) = transientTerm3D(phi_old, dt, alfa.value[2:end-1,2:end-1,2:end-1])
 
 
 function transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}) where T<:Real
-d = phi_old.domain.dimension
-if d==1 || d==1.5
-  transientTerm1D(phi_old, dt, alfa)
-elseif d==2 || d==2.5 || d==2.8
-  transientTerm2D(phi_old, dt, alfa)
-elseif d==3 || d==3.2
-  transientTerm3D(phi_old, dt, alfa)
-end
+  transientTerm(phi_old, dt, alfa, phi_old.domain.coordinatesystem)
 
 end
+
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cartesian1D) where T<:Real = transientTerm1D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cylindrical1D) where T<:Real = transientTerm1D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cartesian2D) where T<:Real = transientTerm2D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cylindrical2D) where T<:Real = transientTerm2D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Radial2D) where T<:Real = transientTerm2D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cartesian3D) where T<:Real = transientTerm3D(phi_old, dt, alfa)
+transientTerm(phi_old::CellValue, dt::Real, alfa::Array{T}, ::Cylindrical3D) where T<:Real = transientTerm3D(phi_old, dt, alfa)
 
 function transientTerm1D(phi_old::CellValue,
 		    dt::Real, alfa::Array{T}) where T<:Real

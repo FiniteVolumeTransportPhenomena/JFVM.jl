@@ -8,83 +8,78 @@
 
 
 function convectionTerm(u::FaceValue)
-d = u.domain.dimension
-if d==1
-  M = convectionTerm1D(u)
-elseif d==1.5
-  M = convectionTermCylindrical1D(u)
-elseif d==2
-  M, Mx, My = convectionTerm2D(u)
-elseif d==2.5
-  M, Mx, My = convectionTermCylindrical2D(u)
-elseif d==2.8
-  M, Mx, My = convectionTermRadial2D(u)
-elseif d==3
-  M, Mx, My, Mz = convectionTerm3D(u)
-elseif d==3.2
-  M, Mx, My, Mz = convectionTermCylindrical3D(u)
+  convectionTerm(u, u.domain.coordinatesystem)
 end
-M
-end
+
+convectionTerm(u::FaceValue, ::Cartesian1D) = convectionTerm1D(u)
+convectionTerm(u::FaceValue, ::Cylindrical1D) = convectionTermCylindrical1D(u)
+convectionTerm(u::FaceValue, ::Cartesian2D) = first(convectionTerm2D(u))
+convectionTerm(u::FaceValue, ::Cylindrical2D) = first(convectionTermCylindrical2D(u))
+convectionTerm(u::FaceValue, ::Radial2D) = first(convectionTermRadial2D(u))
+convectionTerm(u::FaceValue, ::Cartesian3D) = first(convectionTerm3D(u))
+convectionTerm(u::FaceValue, ::Cylindrical3D) = first(convectionTermCylindrical3D(u))
 
 function convectionUpwindTerm(u::FaceValue)
-d = u.domain.dimension
-if d==1
-  M = convectionUpwindTerm1D(u)
-elseif d==1.5
-  M = convectionUpwindTermCylindrical1D(u)
-elseif d==2
-  M, Mx, My = convectionUpwindTerm2D(u)
-elseif d==2.5
-  M, Mx, My = convectionUpwindTermCylindrical2D(u)
-elseif d==2.8
-  M, Mx, My = convectionUpwindTermRadial2D(u)
-elseif d==3
-  M, Mx, My, Mz = convectionUpwindTerm3D(u)
-elseif d==3.2
-  M, Mx, My, Mz = convectionUpwindTermCylindrical3D(u)
+  convectionUpwindTerm(u, u.domain.coordinatesystem)
 end
-M
-end
+
+convectionUpwindTerm(u::FaceValue, ::Cartesian1D) = convectionUpwindTerm1D(u)
+convectionUpwindTerm(u::FaceValue, ::Cylindrical1D) = convectionUpwindTermCylindrical1D(u)
+convectionUpwindTerm(u::FaceValue, ::Cartesian2D) = first(convectionUpwindTerm2D(u))
+convectionUpwindTerm(u::FaceValue, ::Cylindrical2D) = first(convectionUpwindTermCylindrical2D(u))
+convectionUpwindTerm(u::FaceValue, ::Radial2D) = first(convectionUpwindTermRadial2D(u))
+convectionUpwindTerm(u::FaceValue, ::Cartesian3D) = first(convectionUpwindTerm3D(u))
+convectionUpwindTerm(u::FaceValue, ::Cylindrical3D) = first(convectionUpwindTermCylindrical3D(u))
 
 function convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue)
-d = u.domain.dimension
-if d==1
-  M = convectionUpwindTerm1D(u, u_upwind)
-elseif d==1.5
-  M = convectionUpwindTermCylindrical1D(u, u_upwind)
-elseif d==2
-  M, Mx, My = convectionUpwindTerm2D(u, u_upwind)
-elseif d==2.5
-  M, Mx, My = convectionUpwindTermCylindrical2D(u, u_upwind)
-elseif d==2.8
-  M, Mx, My = convectionUpwindTermRadial2D(u, u_upwind)
-elseif d==3
-  M, Mx, My, Mz = convectionUpwindTerm3D(u, u_upwind)
-elseif d==3.2
-  M, Mx, My, Mz = convectionUpwindTermCylindrical3D(u, u_upwind)
-end
-M
+  convectionUpwindTerm(u, u_upwind, u.domain.coordinatesystem)
 end
 
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cartesian1D) = convectionUpwindTerm1D(u, u_upwind)
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cylindrical1D) = convectionUpwindTermCylindrical1D(u, u_upwind)
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cartesian2D) = first(convectionUpwindTerm2D(u, u_upwind))
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cylindrical2D) = first(convectionUpwindTermCylindrical2D(u, u_upwind))
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Radial2D) = first(convectionUpwindTermRadial2D(u, u_upwind))
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cartesian3D) = first(convectionUpwindTerm3D(u, u_upwind))
+convectionUpwindTerm(u::FaceValue, u_upwind::FaceValue, ::Cylindrical3D) = first(convectionUpwindTermCylindrical3D(u, u_upwind))
+
 function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function)
-d = u.domain.dimension
-if d==1
-  M, RHS = convectionTvdTerm1D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==1.5
-  M, RHS = convectionTvdTermCylindrical1D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2
-  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTerm2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2.5
-  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTermCylindrical2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2.8
-  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTermRadial2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==3
-  M, RHS, Mx, My, Mz, RHSx, RHSy, RHSz = convectionTvdTerm3D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==3.2
-  M, RHS, Mx, My, Mz, RHSx, RHSy, RHSz = convectionTvdTermCylindrical3D(u::FaceValue, phi::CellValue, FL::Function)
+  convectionTvdTerm(u, phi, FL, u.domain.coordinatesystem)
 end
-(M, RHS)
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian1D)
+  M, RHS = convectionTvdTerm1D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical1D)
+  M, RHS = convectionTvdTermCylindrical1D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian2D)
+  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTerm2D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical2D)
+  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTermCylindrical2D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Radial2D)
+  M, RHS, Mx, My, RHSx, RHSy = convectionTvdTermRadial2D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian3D)
+  M, RHS, Mx, My, Mz, RHSx, RHSy, RHSz = convectionTvdTerm3D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
+end
+
+function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical3D)
+  M, RHS, Mx, My, Mz, RHSx, RHSy, RHSz = convectionTvdTermCylindrical3D(u::FaceValue, phi::CellValue, FL::Function)
+  return (M, RHS)
 end
 
 function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, u_upwind)
@@ -94,44 +89,28 @@ function convectionTvdTerm(u::FaceValue, phi::CellValue, FL::Function, u_upwind)
 end
 
 function convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function)
-d = u.domain.dimension
-if d==1
-  RHS = convectionTvdRHS1D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==1.5
-  RHS = convectionTvdRHSCylindrical1D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2
-  RHS, RHSx, RHSy = convectionTvdRHS2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2.5
-  RHS, RHSx, RHSy = convectionTvdRHSCylindrical2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==2.8
-  RHS, RHSx, RHSy = convectionTvdRHSRadial2D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==3
-  RHS, RHSx, RHSy, RHSz = convectionTvdRHS3D(u::FaceValue, phi::CellValue, FL::Function)
-elseif d==3.2
-  RHS, RHSx, RHSy, RHSz = convectionTvdRHSCylindrical3D(u::FaceValue, phi::CellValue, FL::Function)
-end
-RHS
+  convectionTvdRHS(u, phi, FL, u.domain.coordinatesystem)
 end
 
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian1D) = convectionTvdRHS1D(u::FaceValue, phi::CellValue, FL::Function)
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical1D) = convectionTvdRHSCylindrical1D(u::FaceValue, phi::CellValue, FL::Function)
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian2D) = first(convectionTvdRHS2D(u::FaceValue, phi::CellValue, FL::Function))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical2D) = first(convectionTvdRHSCylindrical2D(u::FaceValue, phi::CellValue, FL::Function))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Radial2D) = first(convectionTvdRHSRadial2D(u::FaceValue, phi::CellValue, FL::Function))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cartesian3D) = first(convectionTvdRHS3D(u::FaceValue, phi::CellValue, FL::Function))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, ::Cylindrical3D) = first(convectionTvdRHSCylindrical3D(u::FaceValue, phi::CellValue, FL::Function))
+
 function convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-d = u.domain.dimension
-if d==1
-  RHS = convectionTvdRHS1D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==1.5
-  RHS = convectionTvdRHSCylindrical1D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==2
-  RHS, RHSx, RHSy = convectionTvdRHS2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==2.5
-  RHS, RHSx, RHSy = convectionTvdRHSCylindrical2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==2.8
-  RHS, RHSx, RHSy = convectionTvdRHSRadial2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==3
-  RHS, RHSx, RHSy, RHSz = convectionTvdRHS3D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
-elseif d==3.2
-  RHS, RHSx, RHSy, RHSz = convectionTvdRHSCylindrical3D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
+  convectionTvdRHS(u, phi, FL, u_upwind, u.domain.coordinatesystem)
 end
-RHS
-end
+
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cartesian1D) = convectionTvdRHS1D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cylindrical1D) = convectionTvdRHSCylindrical1D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue)
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cartesian2D) = first(convectionTvdRHS2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cylindrical2D) = first(convectionTvdRHSCylindrical2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Radial2D) = first(convectionTvdRHSRadial2D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cartesian3D) = first(convectionTvdRHS3D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue))
+convectionTvdRHS(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue, ::Cylindrical3D) = first(convectionTvdRHSCylindrical3D(u::FaceValue, phi::CellValue, FL::Function, u_upwind::FaceValue))
 
 # =================== 1D Convection Terms =======================
 # =============== 1D Convection Terms Cartesian Central =================

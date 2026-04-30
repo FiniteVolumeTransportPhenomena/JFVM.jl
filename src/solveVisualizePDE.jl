@@ -5,20 +5,20 @@
 # ===============================
 
 # =============================== SOLVERS ===================================
-function solveLinearPDE(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64}, RHS::Array{Float64,1})
+function solveLinearPDE(m::MeshStructure, M::AbstractMatrix, RHS::AbstractVector)
   N=m.dims
   x=M\RHS # until the problem is solved with Julia "\" solver
   phi = CellValue(m, reshape(x, tuple(N.+2...)))
   phi
 end
 
-function solveLinearPDE!(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64}, RHS::Array{Float64,1}, phi::CellValue)
+function solveLinearPDE!(m::MeshStructure, M::AbstractMatrix, RHS::AbstractVector, phi::CellValue)
   N=m.dims
   x=M\RHS # until the problem is solved with Julia "\" solver
-  phi.value = reshape(x, tuple(N.+2...))
+  phi.value .= reshape(x, tuple(N.+2...))
 end
 
-function solvePDE(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64}, RHS::Array{Float64,1})
+function solvePDE(m::MeshStructure, M::AbstractMatrix, RHS::AbstractVector)
   N=m.dims
   x=M\RHS # until the problem is solved with Julia "\" solver
   phi = CellValue(m, reshape(x, tuple(N.+2...)))
@@ -26,7 +26,7 @@ function solvePDE(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64}, RHS::Arr
 end
 
 
-function solveMUMPSLinearPDE(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64}, RHS::Array{Float64,1})
+function solveMUMPSLinearPDE(m::MeshStructure, M::AbstractMatrix, RHS::AbstractVector)
   N = m.dims
   x = mumps_solver.solveMUMPS(M,RHS) # until the problem is solved with Julia "\" solver
   phi = CellValue(m, reshape(x, tuple(N.+2...)))
@@ -34,33 +34,31 @@ function solveMUMPSLinearPDE(m::MeshStructure, M::SparseMatrixCSC{Float64, Int64
   error("MUMPS needs to be installed and imported (import MUMPS).")
 end
 
-function solveExplicitPDE(phi_old::CellValue, dt::Real, RHS::Array{Float64,1},
+function _internal_slice(phi_val, m::MeshStructure)
+  N = m.dims
+  cs = m.coordinatesystem
+  if is_1d(cs)
+    return phi_val[2:N[1]+1]
+  elseif is_2d(cs)
+    return phi_val[2:N[1]+1, 2:N[2]+1]
+  else
+    return phi_val[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
+  end
+end
+
+function solveExplicitPDE(phi_old::CellValue, dt::Real, RHS::AbstractVector,
   BC::BoundaryCondition)
-  d = phi_old.domain.dimension
   N = phi_old.domain.dims
   phi_val=reshape(phi_old.value[:]+dt*RHS, tuple(N.+2...))
-  if (d==1) || (d==1.5)
-  	phi_val= phi_val[2:N[1]+1]
-  elseif (d==2) || (d==2.5) || (d==2.8)
-  	phi_val= phi_val[2:N[1]+1, 2:N[2]+1]
-  elseif (d==3) || (d==3.2)
-    phi_val= phi_val[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
-  end
+  phi_val = _internal_slice(phi_val, phi_old.domain)
   return createCellVariable(phi_old.domain, phi_val, BC)
 end
 
-function solveExplicitPDE(phi_old::CellValue, dt::Real, RHS::Array{Float64,1},
+function solveExplicitPDE(phi_old::CellValue, dt::Real, RHS::AbstractVector,
   BC::BoundaryCondition, alfa::CellValue)
-  d = phi_old.domain.dimension
   N = phi_old.domain.dims
   phi_val=reshape(phi_old.value[:]+dt*RHS./alfa.value[:], tuple(N.+2...))
-  if (d==1) || (d==1.5)
-  	phi_val= phi_val[2:N[1]+1]
-  elseif (d==2) || (d==2.5) || (d==2.8)
-  	phi_val= phi_val[2:N[1]+1, 2:N[2]+1]
-  elseif (d==3) || (d==3.2)
-    phi_val= phi_val[2:N[1]+1, 2:N[2]+1, 2:N[3]+1]
-  end
+  phi_val = _internal_slice(phi_val, phi_old.domain)
   return createCellVariable(phi_old.domain, phi_val, BC)
 end
 

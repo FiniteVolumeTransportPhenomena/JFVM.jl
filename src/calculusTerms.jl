@@ -13,25 +13,17 @@
 
 
 function divergenceTerm(F::FaceValue)
-d = F.domain.dimension
-if d==1
-  RHSdiv = divergenceTerm1D(F)
-elseif d==1.5
-  RHSdiv = divergenceTermCylindrical1D(F)
-elseif d==2
-  RHSdiv, RHSdivx, RHSdivy = divergenceTerm2D(F)
-elseif d==2.5
-  RHSdiv, RHSdivx, RHSdivy = divergenceTermCylindrical2D(F)
-elseif d==2.8
-  RHSdiv, RHSdivx, RHSdivy = divergenceTermRadial2D(F)
-elseif d==3
-  RHSdiv, RHSdivx, RHSdivy, RHSdivz = divergenceTerm3D(F)
-elseif d==3.2
-  RHSdiv, RHSdivx, RHSdivy, RHSdivz = divergenceTermCylindrical3D(F)
-end
-RHSdiv
+  divergenceTerm(F, F.domain.coordinatesystem)
 
 end
+
+divergenceTerm(F::FaceValue, ::Cartesian1D) = divergenceTerm1D(F)
+divergenceTerm(F::FaceValue, ::Cylindrical1D) = divergenceTermCylindrical1D(F)
+divergenceTerm(F::FaceValue, ::Cartesian2D) = first(divergenceTerm2D(F))
+divergenceTerm(F::FaceValue, ::Cylindrical2D) = first(divergenceTermCylindrical2D(F))
+divergenceTerm(F::FaceValue, ::Radial2D) = first(divergenceTermRadial2D(F))
+divergenceTerm(F::FaceValue, ::Cartesian3D) = first(divergenceTerm3D(F))
+divergenceTerm(F::FaceValue, ::Cylindrical3D) = first(divergenceTermCylindrical3D(F))
 
 
 # =============== Divergence 1D Term ============================
@@ -337,14 +329,14 @@ end
 function gradientTerm(phi)
   # calculates the gradient of a variable
   # the output is a face variable
-  d=phi.domain.dimension
-  if d==1 || d==1.5
+  cs = phi.domain.coordinatesystem
+  if is_1d(cs)
     dx = 0.5*(phi.domain.cellsize.x[1:end-1].+phi.domain.cellsize.x[2:end])
     FaceValue(phi.domain,
       (phi.value[2:end].-phi.value[1:end-1])./dx,
       [1.0],
       [1.0])
-  elseif d==2 || d==2.5
+  elseif (cs isa Cartesian2D) || (cs isa Cylindrical2D)
     dx = 0.5*(phi.domain.cellsize.x[1:end-1].+phi.domain.cellsize.x[2:end])
     Ny = phi.domain.dims[2]
     dy = zeros( 1, Ny+1)
@@ -353,7 +345,7 @@ function gradientTerm(phi)
       (phi.value[2:end,2:end-1].-phi.value[1:end-1,2:end-1])./dx,
       (phi.value[2:end-1,2:end].-phi.value[2:end-1,1:end-1])./dy,
       [1.0])
-  elseif d==2.8
+  elseif cs isa Radial2D
     dx = 0.5*(phi.domain.cellsize.x[1:end-1].+phi.domain.cellsize.x[2:end])
     Ntheta = phi.domain.dims[2]
     dtheta = zeros( 1, Ntheta+1)
@@ -363,7 +355,7 @@ function gradientTerm(phi)
       (phi.value[2:end,2:end-1].-phi.value[1:end-1,2:end-1])./dx,
       (phi.value[2:end-1,2:end].-phi.value[2:end-1,1:end-1])./(dtheta.*rp),
       [1.0])
-  elseif d==3
+  elseif cs isa Cartesian3D
     Ny = phi.domain.dims[2]
     Nz = phi.domain.dims[3]
     dx = 0.5*(phi.domain.cellsize.x[1:end-1].+phi.domain.cellsize.x[2:end])
@@ -375,7 +367,7 @@ function gradientTerm(phi)
       (phi.value[2:end,2:end-1,2:end-1].-phi.value[1:end-1,2:end-1,2:end-1])./dx,
       (phi.value[2:end-1,2:end,2:end-1].-phi.value[2:end-1,1:end-1,2:end-1])./dy,
       (phi.value[2:end-1,2:end-1,2:end].-phi.value[2:end-1,2:end-1,1:end-1])./dz)
-  elseif d==3.2
+  elseif cs isa Cylindrical3D
     Ntheta = phi.domain.dims[2]
     Nz = phi.domain.dims[3]
     dx = 0.5*(phi.domain.cellsize.x[1:end-1].+phi.domain.cellsize.x[2:end])
@@ -397,15 +389,15 @@ end
 function gradientCellTerm(phi)
   # calculates the gradient of a variable
   # the output is a face variable
-  d=phi.domain.dimension
+  cs = phi.domain.coordinatesystem
   phi_face = linearMean(phi)
-  if d==1 || d==1.5
+  if is_1d(cs)
     dx = phi.domain.cellsize.x[2:end-1]
     CellVector(phi.domain,
       (phi_face.xvalue[2:end] .- phi_face.xvalue[1:end-1])./dx,
       [1.0],
       [1.0])
-  elseif d==2 || d==2.5
+  elseif (cs isa Cartesian2D) || (cs isa Cylindrical2D)
     dx = phi.domain.cellsize.x[2:end-1]
     Ny = phi.domain.dims[2]
     dy = zeros(1, Ny)
@@ -414,7 +406,7 @@ function gradientCellTerm(phi)
       (phi_face.xvalue[2:end, :] .- phi_face.xvalue[1:end-1, :])./dx,
       (phi_face.yvalue[:, 2:end] .- phi_face.yvalue[:, 1:end-1])./dy,
       [1.0])
-  elseif d==2.8
+  elseif cs isa Radial2D
     dx = phi.domain.cellsize.x[2:end-1]
     Ntheta = phi.domain.dims[2]
     dtheta = zeros(1, Ntheta)
@@ -424,7 +416,7 @@ function gradientCellTerm(phi)
       (phi_face.xvalue[2:end, :] .- phi_face.xvalue[1:end-1, :])./dx,
       (phi_face.yvalue[:, 2:end] .- phi_face.yvalue[:, 1:end-1])./(dtheta.*rp),
       [1.0])
-  elseif d==3
+  elseif cs isa Cartesian3D
     Ny = phi.domain.dims[2]
     Nz = phi.domain.dims[3]
     dx = phi.domain.cellsize.x[2:end-1]
@@ -436,7 +428,7 @@ function gradientCellTerm(phi)
       (phi_face.xvalue[2:end, :, :] .- phi_face.xvalue[1:end-1, :, :])./dx,
       (phi_face.yvalue[:, 2:end, :] .- phi_face.yvalue[:, 1:end-1, :])./dy,
       (phi_face.zvalue[:, :, 2:end] .- phi_face.zvalue[:, :, 1:end-1])./dz)
-  elseif d==3.2
+  elseif cs isa Cylindrical3D
     Ntheta = phi.domain.dims[2]
     Nz = phi.domain.dims[3]
     dx = phi.domain.cellsize.x[2:end-1]

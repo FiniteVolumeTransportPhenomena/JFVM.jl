@@ -6,9 +6,10 @@
 
 # ================================ CREATE BOUNDARY CONDITION =======================
 function createBC(m::MeshStructure)
-# creates a boundary condition structure
-d=m.dimension
-if d==1 || d==1.5
+  createBC(m, m.coordinatesystem)
+end
+
+function createBC(m::MeshStructure, ::Cartesian1D)
   BoundaryCondition(m,
       BorderValue([1.0], [0.0], [0.0], false),
       BorderValue([1.0], [0.0], [0.0], false),
@@ -16,7 +17,11 @@ if d==1 || d==1.5
       BorderValue([0.0], [0.0], [0.0], false),
       BorderValue([0.0], [0.0], [0.0], false),
       BorderValue([0.0], [0.0], [0.0], false))
-elseif d==2 || d==2.5 || d==2.8
+end
+
+createBC(m::MeshStructure, ::Cylindrical1D) = createBC(m, Cartesian1D())
+
+function createBC(m::MeshStructure, ::Cartesian2D)
   Nx = m.dims[1]
   Ny = m.dims[2]
   BoundaryCondition(m,
@@ -26,7 +31,12 @@ elseif d==2 || d==2.5 || d==2.8
       BorderValue(ones(Nx,1), zeros(Nx,1), zeros(Nx,1), false),
       BorderValue([0.0], [0.0], [0.0], false),
       BorderValue([0.0], [0.0], [0.0], false))
-elseif d==3 || d==3.2
+    end
+
+    createBC(m::MeshStructure, ::Cylindrical2D) = createBC(m, Cartesian2D())
+    createBC(m::MeshStructure, ::Radial2D) = createBC(m, Cartesian2D())
+
+    function createBC(m::MeshStructure, ::Cartesian3D)
   Nx = m.dims[1]
   Ny = m.dims[2]
   Nz = m.dims[3]
@@ -38,23 +48,20 @@ elseif d==3 || d==3.2
       BorderValue(ones(Nx,Ny,1), zeros(Nx,Ny,1), zeros(Nx,Ny,1), false),
       BorderValue(ones(Nx,Ny,1), zeros(Nx,Ny,1), zeros(Nx,Ny,1), false))
 end
-end
+
+createBC(m::MeshStructure, ::Cylindrical3D) = createBC(m, Cartesian3D())
 
 function boundaryConditionTerm(BC::BoundaryCondition)
-d = BC.domain.dimension
-if d==1 || d==1.5
-  boundaryCondition1D(BC)
-elseif (d == 2) || (d == 2.5)
-  boundaryCondition2D(BC)
-elseif (d == 2.8)
-  boundaryConditionRadial2D(BC)
-elseif (d == 3)
-  boundaryCondition3D(BC)
-elseif (d == 3.2)
-  boundaryConditionCylindrical3D(BC)
+  boundaryConditionTerm(BC, BC.domain.coordinatesystem)
 end
 
-end
+boundaryConditionTerm(BC::BoundaryCondition, ::Cartesian1D) = boundaryCondition1D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Cylindrical1D) = boundaryCondition1D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Cartesian2D) = boundaryCondition2D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Cylindrical2D) = boundaryCondition2D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Radial2D) = boundaryConditionRadial2D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Cartesian3D) = boundaryCondition3D(BC)
+boundaryConditionTerm(BC::BoundaryCondition, ::Cylindrical3D) = boundaryConditionCylindrical3D(BC)
 
 # =============================== BOUNDARY CARTESIAN 1D ============================
 function boundaryCondition1D(BC::BoundaryCondition)
