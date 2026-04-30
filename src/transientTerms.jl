@@ -19,7 +19,7 @@ if d==1 || d==1.5
 elseif d==2 || d==2.5 || d==2.8
   transientTerm2D(phi_old, dt, alfa.value[2:end-1,2:end-1])
 elseif d==3 || d==3.2
-  transientTerm3D(phi_old, dt, alfa[2:end-1,2:end-1,2:end-1])
+  transientTerm3D(phi_old, dt, alfa.value[2:end-1,2:end-1,2:end-1])
 end
 end
 
